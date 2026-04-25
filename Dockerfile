@@ -17,6 +17,10 @@ RUN apt-get update && apt-get install -y \
 # Create a non-root user for running the daemon
 RUN useradd -m -s /bin/bash multica
 
+# Create .multica config directory with proper permissions
+RUN mkdir -p /home/multica/.multica && \
+    chown -R multica:multica /home/multica/.multica
+
 # Download and install Multica CLI
 RUN OS=$(uname -s | tr '[:upper:]' '[:lower:]') && \
     ARCH=$(uname -m) && \

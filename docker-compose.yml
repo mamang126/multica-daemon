@@ -42,11 +42,16 @@ services:
       GIT_USERNAME: ${GIT_USERNAME:-}
       GIT_TOKEN: ${GIT_TOKEN:-}
       GIT_CREDENTIAL_HELPER: ${GIT_CREDENTIAL_HELPER:-store}
+      
+      # MCP configuration (optional)
+      OUTLINE_API_KEY: ${OUTLINE_API_KEY:-}
     volumes:
       # Persist Multica configuration
       - multica-config:/home/multica/.multica
       # Workspace directory for task execution
       - multica-workspaces:/home/multica/multica_workspaces
+      # MCP configuration file
+      - ./mcp.json:/home/multica/.multica/mcp.json:ro
       # SSH keys for git private repository access
       # Mount your SSH private key (read-only)
       # - ${SSH_PRIVATE_KEY_PATH:-~/.ssh/id_rsa}:/home/multica/.ssh/id_rsa:ro

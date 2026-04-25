@@ -10,6 +10,7 @@ This Docker container runs a Multica daemon that connects to a self-hosted Multi
 - `install-agents.sh` - Agent CLI installation script
 - `start.sh` - Daemon startup script (handles configuration and authentication)
 - `.env.example` - Environment variables template
+- `mcp.json` - MCP (Model Context Protocol) server configuration
 
 ## Prerequisites
 
@@ -67,6 +68,61 @@ If you need to clone private repositories, you can use either SSH keys or HTTPS 
    GIT_USER_EMAIL="your.email@example.com"
    ```
 2. Rebuild: `docker-compose build && docker-compose up -d`
+
+## MCP (Model Context Protocol) Configuration
+
+The daemon supports MCP servers to provide additional context and tools to AI assistants. The [mcp.json](mcp.json) file is automatically mounted and configured. For detailed MCP setup instructions, see [MCP_SETUP.md](MCP_SETUP.md).
+
+### Available MCP Servers
+
+The default configuration includes:
+
+- **filesystem**: Access to workspace files
+- **git**: Git repository operations
+- **github**: GitHub API integration (requires `GITHUB_TOKEN`)
+- **memory**: Persistent memory across sessions
+- **postgres**: Database access (requires `DATABASE_URL`)
+
+### Configuring MCP
+
+1. **Edit `mcp.json`** to customize MCP servers:
+   ```json
+   {
+     "mcpServers": {
+       "github": {
+         "command": "npx",
+         "args": ["-y", "@modelcontextprotocol/server-github"],
+         "env": {
+           "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+         }
+       }
+     }
+   }
+   ```
+
+2. **Set environment variables** in your `.env` file:
+   ```bash
+   GITHUB_TOKEN=ghp_your_token_here
+   DATABASE_URL=postgresql://user:password@host:5432/database
+   ```
+
+3. **Restart the container**:
+   ```bash
+   docker-compose up -d
+   ```
+
+### Disabling MCP Servers
+
+To disable a server, add `"disabled": true` to its configuration in `mcp.json`:
+```json
+{
+  "mcpServers": {
+    "postgres": {
+      "disabled": true
+    }
+  }
+}
+```
 
 ## Configuration
 

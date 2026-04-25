@@ -1,0 +1,11 @@
+{
+    "$schema": "https://modelcontextprotocol.io/schema/mcp.json",
+    "mcpServers": {
+        "outline": {
+            "url": "https://documentation.miwoo.es/mcp",
+            "headers": {
+                "Authorization": "${OUTLINE_API_KEY}"
+            }
+        }
+    }
+}

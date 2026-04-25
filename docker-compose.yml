@@ -50,7 +50,13 @@ services:
       - multica-config:/home/multica/.multica
       # Workspace directory for task execution
       - multica-workspaces:/home/multica/multica_workspaces
-      # MCP configuration file
+      # Persist agent configurations (OpenCode, Claude, etc.)
+      - agent-config:/home/multica/.opencode
+      - agent-config-claude:/home/multica/.config/Claude
+      - agent-config-copilot:/home/multica/.github-copilot
+      - agent-config-openclaw:/home/multica/.openclaw
+      - agent-config-cursor:/home/multica/.cursor
+      # MCP configuration file (source of truth for all agents)
       - ./mcp.json:/home/multica/.multica/mcp.json:ro
       # SSH keys for git private repository access
       # Mount your SSH private key (read-only)
@@ -77,4 +83,14 @@ volumes:
   multica-config:
     driver: local
   multica-workspaces:
+    driver: local
+  agent-config:
+    driver: local
+  agent-config-claude:
+    driver: local
+  agent-config-copilot:
+    driver: local
+  agent-config-openclaw:
+    driver: local
+  agent-config-cursor:
     driver: local

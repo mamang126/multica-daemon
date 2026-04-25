@@ -12,7 +12,21 @@ MCP (Model Context Protocol) is an open protocol that standardizes how applicati
 
 ## Configuration File
 
-The `mcp.json` file defines which MCP servers are available to your AI agents. It's mounted at `/home/multica/.multica/mcp.json` in the container.
+The `mcp.json` file is the **single source of truth** for MCP configuration. It's automatically distributed to all installed agent CLIs at startup.
+
+### How It Works
+
+1. You edit `mcp.json` in your project root
+2. Docker mounts it at `/home/multica/.multica/mcp.json`
+3. The startup script detects installed agents
+4. Agent-specific config files are created automatically:
+   - OpenCode → `/home/multica/.opencode/opencode.json`
+   - Claude → `/home/multica/.config/Claude/claude_desktop_config.json`
+   - Copilot → `/home/multica/.github-copilot/mcp.json`
+   - OpenClaw → `/home/multica/.openclaw/mcp.json`
+   - Cursor → `/home/multica/.cursor/mcp.json`
+
+This ensures all agents use the same MCP configuration without manual duplication.
 
 ### Basic Structure
 
@@ -252,6 +266,49 @@ To temporarily disable a server without removing it:
 ```
 
 ## Troubleshooting
+
+### MCP Configuration Not Applied
+
+If agents don't see your MCP configuration:
+
+1. **Check the startup logs:**
+   ```bash
+   docker-compose logs multica-daemon | grep -i mcp
+   ```
+   You should see messages like "Creating opencode.json for OpenCode CLI..."
+
+2. **Verify file was mounted:**
+   ```bash
+   docker-compose exec multica-daemon cat /home/multica/.multica/mcp.json
+   ```
+
+3. **Check agent-specific configs were created:**
+   ```bash
+   # For OpenCode
+   docker-compose exec multica-daemon cat /home/multica/.opencode/opencode.json
+   
+   # For Claude
+   docker-compose exec multica-daemon cat /home/multica/.config/Claude/claude_desktop_config.json
+   ```
+
+4. **Restart after changing mcp.json:**
+   ```bash
+   docker-compose restart multica-daemon
+   ```
+
+### Agent-Specific Configuration Paths
+
+Different agents look for MCP configuration in different locations:
+
+| Agent | Primary Config Path | Alternative Paths |
+|-------|-------------------|------------------|
+| OpenCode | `~/.opencode/opencode.json` | `~/opencode.json` |
+| Claude | `~/.config/Claude/claude_desktop_config.json` | - |
+| Copilot | `~/.github-copilot/mcp.json` | - |
+| OpenClaw | `~/.openclaw/mcp.json` | - |
+| Cursor | `~/.cursor/mcp.json` | - |
+
+The startup script automatically creates all necessary files from your single `mcp.json` source.
 
 ### Server Not Starting
 

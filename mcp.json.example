@@ -1,0 +1,60 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schema/mcp.json",
+  "_comment": "This is the single source of truth for MCP configuration. It will be automatically distributed to all installed agent CLIs (OpenCode, Claude, Copilot, etc.) at container startup.",
+  "mcpServers": {
+    "filesystem": {
+      "_comment": "Provides access to workspace files",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/multica/multica_workspaces"
+      ],
+      "env": {},
+      "disabled": true
+    },
+    "git": {
+      "_comment": "Git repository operations",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git"
+      ],
+      "env": {},
+      "disabled": true
+    },
+    "github": {
+      "_comment": "GitHub API integration - requires GITHUB_TOKEN environment variable",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "disabled": true
+    },
+    "memory": {
+      "_comment": "Persistent memory storage across sessions",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {},
+      "disabled": true
+    },
+    "postgres": {
+      "_comment": "PostgreSQL database access - requires DATABASE_URL environment variable",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "${DATABASE_URL}"
+      ],
+      "env": {},
+      "disabled": true
+    }
+  }
+}

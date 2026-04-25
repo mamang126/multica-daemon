@@ -4,13 +4,24 @@ This Docker container runs a Multica daemon that connects to a self-hosted Multi
 
 ## Project Structure
 
+**Core Files:**
 - `Dockerfile` - Docker image definition
 - `docker-compose.yml` - Docker Compose configuration
 - `install-multica.sh` - Multica CLI installation script
 - `install-agents.sh` - Agent CLI installation script
 - `start.sh` - Daemon startup script (handles configuration and authentication)
 - `.env.example` - Environment variables template
-- `mcp.json` - MCP (Model Context Protocol) server configuration
+
+**MCP Configuration:**
+- `mcp.json` - MCP (Model Context Protocol) server configuration (single source of truth)
+- `mcp.json.example` - Example MCP configuration with common servers
+
+**Documentation:**
+- `README.md` - This file - project overview and setup
+- `GIT_SETUP.md` - Git authentication configuration guide
+- `MCP_QUICKSTART.md` - Quick start guide for MCP (start here!)
+- `MCP_SETUP.md` - Detailed MCP server configuration
+- `AGENT_CONFIG.md` - Agent-specific configuration reference
 
 ## Prerequisites
 
@@ -71,29 +82,31 @@ If you need to clone private repositories, you can use either SSH keys or HTTPS 
 
 ## MCP (Model Context Protocol) Configuration
 
-The daemon supports MCP servers to provide additional context and tools to AI assistants. The [mcp.json](mcp.json) file is automatically mounted and configured. For detailed MCP setup instructions, see [MCP_SETUP.md](MCP_SETUP.md).
+The daemon supports MCP servers to provide additional context and tools to AI assistants. The [mcp.json](mcp.json) file serves as the **single source of truth** and is automatically distributed to all installed agent CLIs at startup:
 
-### Available MCP Servers
+- **OpenCode** → `opencode.json`
+- **Claude** → `claude_desktop_config.json`  
+- **GitHub Copilot** → `mcp.json`
+- **OpenClaw** → `mcp.json`
+- **Cursor** → `mcp.json`
 
-The default configuration includes:
+Simply edit `mcp.json` and restart the container - all agents will automatically use the updated configuration. 
 
-- **filesystem**: Access to workspace files
-- **git**: Git repository operations
-- **github**: GitHub API integration (requires `GITHUB_TOKEN`)
-- **memory**: Persistent memory across sessions
-- **postgres**: Database access (requires `DATABASE_URL`)
+**📚 Documentation:**
+- **[MCP_QUICKSTART.md](MCP_QUICKSTART.md)** ⭐ Start here - 5-minute setup guide
+- [MCP_SETUP.md](MCP_SETUP.md) - Detailed MCP server configuration guide
+- [AGENT_CONFIG.md](AGENT_CONFIG.md) - Agent-specific configuration reference
 
-### Configuring MCP
+### Quick Example
 
-1. **Edit `mcp.json`** to customize MCP servers:
+1. **Edit `mcp.json`** to add your MCP server:
    ```json
    {
      "mcpServers": {
-       "github": {
-         "command": "npx",
-         "args": ["-y", "@modelcontextprotocol/server-github"],
-         "env": {
-           "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+       "outline": {
+         "url": "https://documentation.example.com/mcp",
+         "headers": {
+           "Authorization": "${OUTLINE_API_KEY}"
          }
        }
      }
@@ -102,27 +115,13 @@ The default configuration includes:
 
 2. **Set environment variables** in your `.env` file:
    ```bash
-   GITHUB_TOKEN=ghp_your_token_here
-   DATABASE_URL=postgresql://user:password@host:5432/database
+   OUTLINE_API_KEY=your_api_key_here
    ```
 
 3. **Restart the container**:
    ```bash
    docker-compose up -d
    ```
-
-### Disabling MCP Servers
-
-To disable a server, add `"disabled": true` to its configuration in `mcp.json`:
-```json
-{
-  "mcpServers": {
-    "postgres": {
-      "disabled": true
-    }
-  }
-}
-```
 
 ## Configuration
 

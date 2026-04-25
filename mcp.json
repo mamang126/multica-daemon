@@ -1,7 +1,8 @@
 {
-    "$schema": "https://modelcontextprotocol.io/schema/mcp.json",
+    "$schema": "https://opencode.ai/config.json",
     "mcp": {
         "outline": {
+            "type": "remote",
             "url": "https://documentation.miwoo.es/mcp",
             "headers": {
                 "Authorization": "${OUTLINE_API_KEY}"

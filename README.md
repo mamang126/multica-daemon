@@ -19,9 +19,11 @@ This Docker container runs a Multica daemon that connects to a self-hosted Multi
 **Documentation:**
 - `README.md` - This file - project overview and setup
 - `GIT_SETUP.md` - Git authentication configuration guide
+- `TROUBLESHOOTING.md` - Common issues and solutions
 - `MCP_QUICKSTART.md` - Quick start guide for MCP (start here!)
 - `MCP_SETUP.md` - Detailed MCP server configuration
 - `AGENT_CONFIG.md` - Agent-specific configuration reference
+- `ARCHITECTURE.md` - Complete system architecture
 
 ## Prerequisites
 

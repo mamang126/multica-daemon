@@ -34,6 +34,18 @@ RUN useradd -m -s /bin/bash multica
 RUN mkdir -p /home/multica/.multica && \
     chown -R multica:multica /home/multica/.multica
 
+# Create agent configuration directories with proper permissions
+RUN mkdir -p /home/multica/.opencode \
+             /home/multica/.config/Claude \
+             /home/multica/.github-copilot \
+             /home/multica/.openclaw \
+             /home/multica/.cursor && \
+    chown -R multica:multica /home/multica/.opencode \
+                             /home/multica/.config \
+                             /home/multica/.github-copilot \
+                             /home/multica/.openclaw \
+                             /home/multica/.cursor
+
 # Create .ssh directory with proper permissions for git SSH keys
 RUN mkdir -p /home/multica/.ssh && \
     chown -R multica:multica /home/multica/.ssh && \

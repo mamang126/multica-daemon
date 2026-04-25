@@ -12,44 +12,78 @@ echo "Configuring MCP for agent CLIs..."
 if [ -f "/home/multica/.multica/mcp.json" ]; then
   echo "Found mcp.json, creating agent-specific configurations..."
   
-  # OpenCode expects opencode.json in the home directory
+  # Function to safely create config file
+  create_agent_config() {
+    local agent_name="$1"
+    local config_dir="$2"
+    local config_file="$3"
+    local symlink_path="$4"
+    
+    echo "  Creating config for ${agent_name}..."
+    
+    # Try to create directory
+    if ! mkdir -p "${config_dir}" 2>/dev/null; then
+      echo "    ⚠ Warning: Could not create ${config_dir} (permission denied)"
+      echo "    This may be a volume permission issue. Trying alternative location..."
+      return 1
+    fi
+    
+    # Try to copy config file
+    if ! cp /home/multica/.multica/mcp.json "${config_file}" 2>/dev/null; then
+      echo "    ⚠ Warning: Could not create ${config_file} (permission denied)"
+      return 1
+    fi
+    
+    # Create symlink if specified
+    if [ -n "${symlink_path}" ]; then
+      ln -sf "${config_file}" "${symlink_path}" 2>/dev/null || true
+    fi
+    
+    echo "    ✓ ${agent_name} configuration created"
+    return 0
+  }
+  
+  # OpenCode expects opencode.json
   if command -v opencode &> /dev/null; then
-    echo "  Creating opencode.json for OpenCode CLI..."
-    mkdir -p /home/multica/.opencode
-    cp /home/multica/.multica/mcp.json /home/multica/.opencode/opencode.json
-    # Also symlink to alternative locations OpenCode might check
-    ln -sf /home/multica/.opencode/opencode.json /home/multica/opencode.json 2>/dev/null || true
+    create_agent_config "OpenCode" \
+      "/home/multica/.opencode" \
+      "/home/multica/.opencode/opencode.json" \
+      "/home/multica/opencode.json"
   fi
   
   # Claude expects claude_desktop_config.json
   if command -v claude &> /dev/null; then
-    echo "  Creating claude_desktop_config.json for Claude CLI..."
-    mkdir -p /home/multica/.config/Claude
-    cp /home/multica/.multica/mcp.json /home/multica/.config/Claude/claude_desktop_config.json
+    create_agent_config "Claude" \
+      "/home/multica/.config/Claude" \
+      "/home/multica/.config/Claude/claude_desktop_config.json" \
+      ""
   fi
   
-  # GitHub Copilot might use different config paths
+  # GitHub Copilot configuration
   if command -v copilot &> /dev/null; then
-    echo "  Creating config for GitHub Copilot CLI..."
-    mkdir -p /home/multica/.github-copilot
-    cp /home/multica/.multica/mcp.json /home/multica/.github-copilot/mcp.json
+    create_agent_config "GitHub Copilot" \
+      "/home/multica/.github-copilot" \
+      "/home/multica/.github-copilot/mcp.json" \
+      ""
   fi
   
   # OpenClaw configuration
   if command -v openclaw &> /dev/null; then
-    echo "  Creating config for OpenClaw CLI..."
-    mkdir -p /home/multica/.openclaw
-    cp /home/multica/.multica/mcp.json /home/multica/.openclaw/mcp.json
+    create_agent_config "OpenClaw" \
+      "/home/multica/.openclaw" \
+      "/home/multica/.openclaw/mcp.json" \
+      ""
   fi
   
   # Cursor configuration
   if command -v cursor &> /dev/null; then
-    echo "  Creating config for Cursor CLI..."
-    mkdir -p /home/multica/.cursor
-    cp /home/multica/.multica/mcp.json /home/multica/.cursor/mcp.json
+    create_agent_config "Cursor" \
+      "/home/multica/.cursor" \
+      "/home/multica/.cursor/mcp.json" \
+      ""
   fi
   
-  echo "  ✓ Agent-specific MCP configurations created"
+  echo "  ✓ Agent MCP configuration complete"
 else
   echo "  No mcp.json found, skipping agent MCP configuration"
 fi

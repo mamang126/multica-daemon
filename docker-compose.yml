@@ -5,6 +5,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Agent CLI installation flags
+        INSTALL_OPENCODE: ${INSTALL_OPENCODE:-true}
+        INSTALL_CLAUDE: ${INSTALL_CLAUDE:-false}
+        INSTALL_COPILOT: ${INSTALL_COPILOT:-false}
+        INSTALL_CODEX: ${INSTALL_CODEX:-false}
+        INSTALL_OPENCLAW: ${INSTALL_OPENCLAW:-false}
+        INSTALL_HERMES: ${INSTALL_HERMES:-false}
+        INSTALL_GEMINI: ${INSTALL_GEMINI:-false}
+        INSTALL_CURSOR: ${INSTALL_CURSOR:-false}
     container_name: multica-daemon
     restart: unless-stopped
     environment:

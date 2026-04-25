@@ -6,6 +6,8 @@ This Docker container runs a Multica daemon that connects to a self-hosted Multi
 
 - `Dockerfile` - Docker image definition
 - `docker-compose.yml` - Docker Compose configuration
+- `install-multica.sh` - Multica CLI installation script
+- `install-agents.sh` - Agent CLI installation script
 - `start.sh` - Daemon startup script (handles configuration and authentication)
 - `.env.example` - Environment variables template
 
@@ -58,6 +60,50 @@ This Docker container runs a Multica daemon that connects to a self-hosted Multi
 - `MULTICA_DAEMON_MAX_CONCURRENT_TASKS`: Max concurrent tasks (default: `20`)
 - `MULTICA_AGENT_TIMEOUT`: Timeout for agent tasks (default: `2h`)
 - `MULTICA_DAEMON_DEVICE_NAME`: Custom device name (default: hostname)
+
+## Agent CLI Configuration
+
+The Multica daemon requires at least one AI agent CLI to be installed. You can configure which agents to install using build-time arguments in your `.env` file:
+
+### Available Agents
+
+- **OpenCode** (`INSTALL_OPENCODE`): Open-source code assistant (default: `true`)
+- **Claude** (`INSTALL_CLAUDE`): Anthropic's Claude CLI
+- **GitHub Copilot** (`INSTALL_COPILOT`): GitHub Copilot CLI
+- **Codex** (`INSTALL_CODEX`): OpenAI Codex CLI
+- **OpenClaw** (`INSTALL_OPENCLAW`): OpenClaw agent CLI
+- **Hermes** (`INSTALL_HERMES`): Hermes agent CLI
+- **Gemini** (`INSTALL_GEMINI`): Google Gemini CLI
+- **Cursor** (`INSTALL_CURSOR`): Cursor agent CLI
+
+### Configuration Example
+
+In your `.env` file:
+```bash
+# Agent CLI Installation (build-time configuration)
+INSTALL_OPENCODE=true     # Enable OpenCode (default)
+INSTALL_CLAUDE=false      # Disable Claude
+INSTALL_COPILOT=true      # Enable GitHub Copilot
+INSTALL_CODEX=false
+INSTALL_OPENCLAW=false
+INSTALL_HERMES=false
+INSTALL_GEMINI=false
+INSTALL_CURSOR=false
+```
+
+**Note:** After changing agent settings, you must rebuild the container:
+```bash
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+### Verifying Installed Agents
+
+Check which agents are available in your container:
+```bash
+docker-compose exec multica-daemon which opencode
+docker-compose exec multica-daemon opencode version
+```
 
 ## Using with Docker Run
 
@@ -132,12 +178,10 @@ docker-compose exec multica-daemon multica workspace list
 - If connecting to localhost, use `host.docker.internal` or host network mode
 - Check firewall settings
 
-### No Agents Detected
-The daemon requires at least one supported AI CLI to be installed. The base Dockerfile doesn't include any agents. You would need to extend the Dockerfile to install agents like:
-- Claude Code (`claude`)
-- Codex (`codex`)
-- OpenCode (`opencode`)
-- Other supported agents
+### No Agent CLI Found
+- Ensure at least one agent is enabled in your `.env` file (e.g., `INSTALL_OPENCODE=true`)
+- Rebuild the container after changing agent settings: `docker-compose build --no-cache`
+- Verify agent installation: `docker-compose exec multica-daemon which opencode`
 
 ### View Daemon Logs
 ```bash

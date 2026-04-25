@@ -3,6 +3,16 @@
 
 FROM ubuntu:22.04
 
+# Build arguments for agent CLI installation
+ARG INSTALL_OPENCODE=true
+ARG INSTALL_CLAUDE=false
+ARG INSTALL_COPILOT=false
+ARG INSTALL_CODEX=false
+ARG INSTALL_OPENCLAW=false
+ARG INSTALL_HERMES=false
+ARG INSTALL_GEMINI=false
+ARG INSTALL_CURSOR=false
+
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -21,22 +31,25 @@ RUN useradd -m -s /bin/bash multica
 RUN mkdir -p /home/multica/.multica && \
     chown -R multica:multica /home/multica/.multica
 
-# Download and install Multica CLI
-RUN OS=$(uname -s | tr '[:upper:]' '[:lower:]') && \
-    ARCH=$(uname -m) && \
-    if [ "$ARCH" = "x86_64" ]; then ARCH="amd64"; fi && \
-    if [ "$ARCH" = "aarch64" ]; then ARCH="arm64"; fi && \
-    LATEST=$(curl -sI https://github.com/multica-ai/multica/releases/latest | grep -i '^location:' | sed 's/.*tag\///' | tr -d '\r\n') && \
-    VERSION="${LATEST#v}" && \
-    echo "Downloading Multica CLI version ${VERSION} for ${OS}-${ARCH}" && \
-    curl -sL "https://github.com/multica-ai/multica/releases/download/${LATEST}/multica-cli-${VERSION}-${OS}-${ARCH}.tar.gz" -o /tmp/multica.tar.gz && \
-    tar -xzf /tmp/multica.tar.gz -C /tmp multica && \
-    mv /tmp/multica /usr/local/bin/multica && \
-    chmod +x /usr/local/bin/multica && \
-    rm /tmp/multica.tar.gz
+# Copy and run Multica CLI installation script
+COPY install-multica.sh /tmp/install-multica.sh
+RUN chmod +x /tmp/install-multica.sh && \
+    /tmp/install-multica.sh && \
+    rm /tmp/install-multica.sh
 
-# Verify installation
-RUN multica version
+# Copy and run agent installation script
+COPY install-agents.sh /tmp/install-agents.sh
+RUN chmod +x /tmp/install-agents.sh && \
+    INSTALL_OPENCODE=${INSTALL_OPENCODE} \
+    INSTALL_CLAUDE=${INSTALL_CLAUDE} \
+    INSTALL_COPILOT=${INSTALL_COPILOT} \
+    INSTALL_CODEX=${INSTALL_CODEX} \
+    INSTALL_OPENCLAW=${INSTALL_OPENCLAW} \
+    INSTALL_HERMES=${INSTALL_HERMES} \
+    INSTALL_GEMINI=${INSTALL_GEMINI} \
+    INSTALL_CURSOR=${INSTALL_CURSOR} \
+    /tmp/install-agents.sh && \
+    rm /tmp/install-agents.sh
 
 # Switch to non-root user
 USER multica

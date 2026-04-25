@@ -1,6 +1,6 @@
 {
     "$schema": "https://modelcontextprotocol.io/schema/mcp.json",
-    "mcpServers": {
+    "mcp": {
         "outline": {
             "url": "https://documentation.miwoo.es/mcp",
             "headers": {

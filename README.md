@@ -45,6 +45,29 @@ This Docker container runs a Multica daemon that connects to a self-hosted Multi
    docker-compose logs -f multica-daemon
    ```
 
+## Git Configuration for Private Repositories
+
+If you need to clone private repositories, you can use either SSH keys or HTTPS with Personal Access Tokens. See [GIT_SETUP.md](GIT_SETUP.md) for detailed instructions.
+
+**Quick setup with SSH:**
+1. Add to your `.env` file:
+   ```bash
+   SSH_PRIVATE_KEY_PATH=~/.ssh/id_rsa
+   GIT_USER_NAME="Your Name"
+   GIT_USER_EMAIL="your.email@example.com"
+   ```
+2. Rebuild: `docker-compose build && docker-compose up -d`
+
+**Quick setup with HTTPS/Token (alternative):**
+1. Add to your `.env` file:
+   ```bash
+   GIT_USERNAME=your-username
+   GIT_TOKEN=your-personal-access-token
+   GIT_USER_NAME="Your Name"
+   GIT_USER_EMAIL="your.email@example.com"
+   ```
+2. Rebuild: `docker-compose build && docker-compose up -d`
+
 ## Configuration
 
 ### Required Environment Variables
@@ -187,6 +210,18 @@ docker-compose exec multica-daemon multica workspace list
 ```bash
 docker-compose exec multica-daemon multica daemon logs -f
 ```
+
+### Git Permission Denied (publickey)
+- Verify `SSH_PRIVATE_KEY_PATH` points to your SSH private key
+- Ensure the public key is added to your git provider (GitHub, GitLab, etc.)
+- Test SSH connection: `docker-compose exec multica-daemon ssh -T git@github.com`
+- See [GIT_SETUP.md](GIT_SETUP.md) for detailed troubleshooting
+
+### Git Authentication Failed (HTTPS)
+- Verify `GIT_USERNAME` and `GIT_TOKEN` are set correctly in `.env`
+- Ensure the token has required repository permissions
+- Check token hasn't expired
+- See [GIT_SETUP.md](GIT_SETUP.md) for detailed troubleshooting
 
 ## Persistent Data
 

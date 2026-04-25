@@ -33,11 +33,27 @@ services:
       
       # Optional: Custom daemon identification
       MULTICA_DAEMON_DEVICE_NAME: ${MULTICA_DAEMON_DEVICE_NAME:-${HOSTNAME}}
+      
+      # Git configuration (optional)
+      GIT_USER_NAME: ${GIT_USER_NAME:-}
+      GIT_USER_EMAIL: ${GIT_USER_EMAIL:-}
+      
+      # Git HTTPS authentication (alternative to SSH keys)
+      GIT_USERNAME: ${GIT_USERNAME:-}
+      GIT_TOKEN: ${GIT_TOKEN:-}
+      GIT_CREDENTIAL_HELPER: ${GIT_CREDENTIAL_HELPER:-store}
     volumes:
       # Persist Multica configuration
       - multica-config:/home/multica/.multica
       # Workspace directory for task execution
       - multica-workspaces:/home/multica/multica_workspaces
+      # SSH keys for git private repository access
+      # Mount your SSH private key (read-only)
+      # - ${SSH_PRIVATE_KEY_PATH:-~/.ssh/id_rsa}:/home/multica/.ssh/id_rsa:ro
+      # Optional: Mount SSH config if you have custom host configurations
+      # - ${SSH_CONFIG_PATH:-~/.ssh/config}:/home/multica/.ssh/config:ro
+      # Optional: Mount known_hosts to avoid host verification prompts
+      # - ${SSH_KNOWN_HOSTS_PATH:-~/.ssh/known_hosts}:/home/multica/.ssh/known_hosts:ro
     
     # Optional: Connect to host network if your self-hosted instance is on localhost
     # NOTE: host network mode does NOT work on Windows/Mac Docker Desktop

@@ -23,6 +23,8 @@ RUN apt-get update && apt-get install -y \
     tar \
     sudo \
     file \
+    git \
+    openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user for running the daemon
@@ -31,6 +33,11 @@ RUN useradd -m -s /bin/bash multica
 # Create .multica config directory with proper permissions
 RUN mkdir -p /home/multica/.multica && \
     chown -R multica:multica /home/multica/.multica
+
+# Create .ssh directory with proper permissions for git SSH keys
+RUN mkdir -p /home/multica/.ssh && \
+    chown -R multica:multica /home/multica/.ssh && \
+    chmod 700 /home/multica/.ssh
 
 # Copy and run Multica CLI installation script
 COPY install-multica.sh /tmp/install-multica.sh
@@ -63,7 +70,12 @@ ENV MULTICA_TOKEN="" \
     MULTICA_APP_URL="http://localhost:3000" \
     MULTICA_DAEMON_POLL_INTERVAL="3s" \
     MULTICA_DAEMON_HEARTBEAT_INTERVAL="15s" \
-    MULTICA_DAEMON_MAX_CONCURRENT_TASKS="20"
+    MULTICA_DAEMON_MAX_CONCURRENT_TASKS="20" \
+    GIT_USER_NAME="" \
+    GIT_USER_EMAIL="" \
+    GIT_USERNAME="" \
+    GIT_TOKEN="" \
+    GIT_CREDENTIAL_HELPER="store"
 
 # Copy startup script
 COPY --chown=multica:multica start.sh /home/multica/start.sh

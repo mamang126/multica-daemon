@@ -19,54 +19,25 @@ echo "Detected platform: ${OS}-${ARCH}"
 # Install OpenCode CLI
 if [ "$INSTALL_OPENCODE" = "true" ]; then
     echo "Installing OpenCode CLI..."
-    LATEST=$(curl -sI https://github.com/opencode-ai/opencode/releases/latest | grep -i '^location:' | sed 's/.*tag\///' | tr -d '\r\n')
-    VERSION="${LATEST#v}"
-    echo "  Version: ${VERSION}"
+    LATEST=$(curl -sI https://github.com/anomalyco/opencode/releases/latest | grep -i '^location:' | sed 's/.*tag\///' | tr -d '\r\n')
+    echo "  Version: ${LATEST}"
     
-    DOWNLOAD_URL="https://github.com/opencode-ai/opencode/releases/download/${LATEST}/opencode-cli-${VERSION}-${OS}-${ARCH}.tar.gz"
+    DOWNLOAD_URL="https://github.com/anomalyco/opencode/releases/download/${LATEST}/opencode-${OS}-${ARCH}.tar.gz"
     echo "  Downloading from: ${DOWNLOAD_URL}"
     
     HTTP_CODE=$(curl -sL -w "%{http_code}" "${DOWNLOAD_URL}" -o /tmp/opencode.tar.gz)
     
-    if [ "$HTTP_CODE" != "200" ]; then
-        echo "  ⚠ Download failed with HTTP ${HTTP_CODE}, trying alternative architectures..."
-        rm -f /tmp/opencode.tar.gz
-        
-        # Try without architecture suffix (some projects have universal binaries)
-        DOWNLOAD_URL="https://github.com/opencode-ai/opencode/releases/download/${LATEST}/opencode-cli-${VERSION}-${OS}.tar.gz"
-        HTTP_CODE=$(curl -sL -w "%{http_code}" "${DOWNLOAD_URL}" -o /tmp/opencode.tar.gz)
-        
-        if [ "$HTTP_CODE" != "200" ]; then
-            echo "  ✗ OpenCode CLI not available for ${OS}-${ARCH}"
-            rm -f /tmp/opencode.tar.gz
-            echo "  Skipping OpenCode CLI installation"
-        else
-            # Verify it's a valid gzip file
-            if file /tmp/opencode.tar.gz | grep -q "gzip compressed data"; then
-                tar -xzf /tmp/opencode.tar.gz -C /tmp opencode
-                mv /tmp/opencode /usr/local/bin/opencode
-                chmod +x /usr/local/bin/opencode
-                rm /tmp/opencode.tar.gz
-                opencode version
-                echo "  ✓ OpenCode CLI installed"
-            else
-                echo "  ✗ Downloaded file is not a valid tar.gz archive"
-                rm -f /tmp/opencode.tar.gz
-            fi
-        fi
+    if [ "$HTTP_CODE" = "200" ] && file /tmp/opencode.tar.gz | grep -q "gzip compressed data"; then
+        tar -xzf /tmp/opencode.tar.gz -C /tmp opencode
+        mv /tmp/opencode /usr/local/bin/opencode
+        chmod +x /usr/local/bin/opencode
+        rm /tmp/opencode.tar.gz
+        opencode version || echo "  (version command not available)"
+        echo "  ✓ OpenCode CLI installed"
     else
-        # Verify it's a valid gzip file
-        if file /tmp/opencode.tar.gz | grep -q "gzip compressed data"; then
-            tar -xzf /tmp/opencode.tar.gz -C /tmp opencode
-            mv /tmp/opencode /usr/local/bin/opencode
-            chmod +x /usr/local/bin/opencode
-            rm /tmp/opencode.tar.gz
-            opencode version
-            echo "  ✓ OpenCode CLI installed"
-        else
-            echo "  ✗ Downloaded file is not a valid tar.gz archive"
-            rm -f /tmp/opencode.tar.gz
-        fi
+        echo "  ✗ OpenCode CLI not available for ${OS}-${ARCH} (HTTP ${HTTP_CODE})"
+        rm -f /tmp/opencode.tar.gz
+        echo "  Skipping OpenCode CLI installation"
     fi
 fi
 

@@ -21,6 +21,7 @@ RUN useradd -m -s /bin/bash multica
 RUN OS=$(uname -s | tr '[:upper:]' '[:lower:]') && \
     ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then ARCH="amd64"; fi && \
+    if [ "$ARCH" = "aarch64" ]; then ARCH="arm64"; fi && \
     LATEST=$(curl -sI https://github.com/multica-ai/multica/releases/latest | grep -i '^location:' | sed 's/.*tag\///' | tr -d '\r\n') && \
     VERSION="${LATEST#v}" && \
     echo "Downloading Multica CLI version ${VERSION} for ${OS}-${ARCH}" && \

@@ -39,6 +39,10 @@ RUN mkdir -p /home/multica/.ssh && \
     chown -R multica:multica /home/multica/.ssh && \
     chmod 700 /home/multica/.ssh
 
+# Create workspace directory with proper permissions
+RUN mkdir -p /home/multica/multica_workspaces && \
+    chown -R multica:multica /home/multica/multica_workspaces
+
 # Copy and run Multica CLI installation script
 COPY install-multica.sh /tmp/install-multica.sh
 RUN chmod +x /tmp/install-multica.sh && \

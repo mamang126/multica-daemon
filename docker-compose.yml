@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  multica-daemon:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: multica-daemon
+    restart: unless-stopped
+    environment:
+      # Required: Your Multica authentication token
+      MULTICA_TOKEN: ${MULTICA_TOKEN}
+      
+      # Self-hosted server URLs
+      MULTICA_SERVER_URL: ${MULTICA_SERVER_URL:-http://localhost:8080}
+      MULTICA_APP_URL: ${MULTICA_APP_URL:-http://localhost:3000}
+      
+      # Optional daemon configuration
+      MULTICA_DAEMON_POLL_INTERVAL: ${MULTICA_DAEMON_POLL_INTERVAL:-3s}
+      MULTICA_DAEMON_HEARTBEAT_INTERVAL: ${MULTICA_DAEMON_HEARTBEAT_INTERVAL:-15s}
+      MULTICA_DAEMON_MAX_CONCURRENT_TASKS: ${MULTICA_DAEMON_MAX_CONCURRENT_TASKS:-20}
+      MULTICA_AGENT_TIMEOUT: ${MULTICA_AGENT_TIMEOUT:-2h}
+      
+      # Optional: Custom daemon identification
+      MULTICA_DAEMON_DEVICE_NAME: ${MULTICA_DAEMON_DEVICE_NAME:-${HOSTNAME}}
+    volumes:
+      # Persist Multica configuration
+      - multica-config:/home/multica/.multica
+      # Workspace directory for task execution
+      - multica-workspaces:/home/multica/multica_workspaces
+    
+    # Optional: Connect to host network if your self-hosted instance is on localhost
+    # NOTE: host network mode does NOT work on Windows/Mac Docker Desktop
+    # On Windows/Mac, use host.docker.internal in your URLs instead
+    # network_mode: "host"
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "multica", "daemon", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  multica-config:
+    driver: local
+  multica-workspaces:
+    driver: local

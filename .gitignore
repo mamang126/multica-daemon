@@ -1,0 +1,6 @@
+# Environment files with secrets
+.env
+
+# Docker volumes
+multica-config/
+multica-workspaces/

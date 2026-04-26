@@ -3,9 +3,10 @@
     "mcp": {
         "outline": {
             "type": "remote",
+            "enabled": true,
             "url": "https://documentation.miwoo.es/mcp",
             "headers": {
-                "Authorization": "${OUTLINE_API_KEY}"
+                "Authorization": "Bearer ${OUTLINE_API_KEY}"
             }
         }
     }
